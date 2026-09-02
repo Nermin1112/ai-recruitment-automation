@@ -1,0 +1,342 @@
+{
+  "name": "AI Recruitment-Email Analysis",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {},
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        448,
+        176
+      ],
+      "id": "ca32c83d-f9d0-4748-8d3f-d7a094dade77",
+      "name": "New Application Email",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "8FUWImQ4JPXdIUfq",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "440a8290-f832-4e5e-810c-5f9f12723099",
+              "leftValue": "={{$json.subject.toLowerCase() }}",
+              "rightValue": "job application",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        656,
+        176
+      ],
+      "id": "84f6ccfb-70c2-4128-a7b4-99d662808ff4",
+      "name": "Filter Job Applications"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-5-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-5-MINI"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "=Analyze the following job application for the position of Automation QA Engineer.\n\nExtract the following information:\n\n- Candidate Name\n- Email\n- Phone\n- Applied Position\n- Education\n- Professional Experience\n- Years of Experience\n- Technical Skills\n- Languages\n- Candidate Summary\n- Candidate Score\n- Screening Recommendation\n\nEvaluate the candidate using the following scoring criteria:\n\nQA / Automation Experience:\n- Less than 1 year = 5 points\n- 1-2 years = 10 points\n- 2-3 years = 15 points\n- 3 or more years = 20 points\n\nTechnical Skills:\n- Python = 15 points\n- Playwright = 20 points\n- API Testing = 10 points\n- SQL = 10 points\n- CI/CD = 10 points\n- Git = 5 points\n- Docker = 5 points\n- Agile/Scrum = 5 points\n\nMaximum score: 100 points.\n\nScoring rules:\n- Award points only when the skill or experience is explicitly mentioned in the application.\n- Do not assume a candidate has a skill that is not mentioned.\n- Do not award points twice for the same skill.\n- The final score must be between 0 and 100.\n\nScreening Recommendation:\n- 80-100 = Strong Match\n- 65-79 = Good Match\n- 50-64 = Potential Match\n- 0-49 = Weak Match\n\nImportant:\n- Do not use age, gender, nationality, ethnicity, photograph, or other personal characteristics when evaluating the candidate.\n- The score is only an objective screening aid.\n- The final hiring decision must be made by a human.\n- If information is not available in the application, return null.\n- Do not invent or assume information.\n\nReturn ONLY valid JSON.\nDo not include markdown, explanations, comments, or any additional text.\n\nUse exactly this JSON structure:\n\n{\n  \"Candidate Name\": null,\n  \"Email\": null,\n  \"Phone\": null,\n  \"Applied Position\": null,\n  \"Education\": null,\n  \"Professional Experience\": null,\n  \"Years of Experience\": null,\n  \"Technical Skills\": [],\n  \"Languages\": [],\n  \"Candidate Summary\": null,\n  \"Candidate Score\": 0,\n  \"Screening Recommendation\": null\n}\n\nJob application:\n {{ $json.text }}\n"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        880,
+        176
+      ],
+      "id": "e745b413-1595-4f1b-bf20-2930304d4e2d",
+      "name": "Analyze Candidate Application",
+      "credentials": {
+        "openAiApi": {
+          "id": "2PHinHCZHFKmA2Q3",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1me0Og9CtPH5WqJ_hsMeWIF2Jm69hZNW8M0TZ4PJcD9Q/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "List 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1me0Og9CtPH5WqJ_hsMeWIF2Jm69hZNW8M0TZ4PJcD9Q/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Candidate Name": "={{ JSON.parse($json.output[0].content[0].text)[\"Candidate Name\"] }}",
+            "Email": "={{ JSON.parse($json.output[0].content[0].text)[\"Email\"] }}",
+            "Phone Number": "={{ JSON.parse($json.output[0].content[0].text)[\"Phone\"] }}",
+            "Applied Position": "={{ JSON.parse($json.output[0].content[0].text)[\"Applied Position\"] }}",
+            "Education": "={{ JSON.parse($json.output[0].content[0].text)[\"Education\"] }}",
+            "Years of Experience": "={{ JSON.parse($json.output[0].content[0].text)[\"Years of Experience\"] }}",
+            "Professional Experience": "={{ JSON.parse($json.output[0].content[0].text)[\"Professional Experience\"] }}",
+            "Technical Skills": "={{ JSON.parse($json.output[0].content[0].text)[\"Technical Skills\"] }}",
+            "Languages": "={{ JSON.parse($json.output[0].content[0].text)[\"Languages\"] }}",
+            "Candidate Score": "={{ JSON.parse($json.output[0].content[0].text)[\"Candidate Score\"] }}",
+            "Screening recommendation": "={{ JSON.parse($json.output[0].content[0].text)[\"Screening Recommendation\"] }}",
+            "Candidate Summary": "={{ JSON.parse($json.output[0].content[0].text)[\"Candidate Summary\"] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Candidate Name",
+              "displayName": "Candidate Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Phone Number",
+              "displayName": "Phone Number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Applied Position",
+              "displayName": "Applied Position",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Education",
+              "displayName": "Education",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Years of Experience",
+              "displayName": "Years of Experience",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Professional Experience",
+              "displayName": "Professional Experience",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Technical Skills",
+              "displayName": "Technical Skills",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Languages",
+              "displayName": "Languages",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Candidate Score",
+              "displayName": "Candidate Score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Screening recommendation",
+              "displayName": "Screening recommendation",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Candidate Summary",
+              "displayName": "Candidate Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Email Sent",
+              "displayName": "Email Sent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1216,
+        176
+      ],
+      "id": "b5226523-1312-4007-a460-ac830bb23530",
+      "name": "Save Candidate Data",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "iU3AM2Qpg2NXRBBj",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "New Application Email": {
+      "main": [
+        [
+          {
+            "node": "Filter Job Applications",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Job Applications": {
+      "main": [
+        [
+          {
+            "node": "Analyze Candidate Application",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze Candidate Application": {
+      "main": [
+        [
+          {
+            "node": "Save Candidate Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "26e7e71c-8e69-4d5d-a0d9-3d39742f4674",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ae775db62ec0e631ef3117e6d67ab08f597fc67e78197f45e001a43bd15bf9e1"
+  },
+  "nodeGroups": [],
+  "id": "RQnd21TLytY7LVBD",
+  "tags": []
+}

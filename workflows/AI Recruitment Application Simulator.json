@@ -1,0 +1,135 @@
+{
+  "name": "AI Recruitment Application Simulator",
+  "nodes": [
+    {
+      "parameters": {
+        "jsCode": "\nconst input = $input.first().json;\n\nconst text = input.output[1].content[0].text;\n\nconst data = JSON.parse(text);\n\nreturn data.applications.map(app => ({\n  json: {\n    to: 'aitestnn5@gmail.com',\n    subject: `Job Application - ${app[\"Applied Position\"]}`,\n    body: app[\"Application Email\"]\n  }\n}));\n\n\n\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        592,
+        0
+      ],
+      "id": "364e1008-5fd8-4a66-b5cc-a1e9998ef06c",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "cb4b51a9-b5a3-4c00-ac05-7592fd574707",
+      "name": "Generate Test Application"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-5-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-5-MINI"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "You are a professional job application generator.\n\nYour task is to generate exactly 10 different fictional job application emails for testing an automated recruitment screening system.\n\nAll 10 applications must be for the position of Automation QA Engineer.\n\nCreate 10 completely different fictional candidates with different levels of experience and different combinations of qualifications.\n\nThe candidates must vary significantly in their suitability for the position.\n\nSome candidates should be highly qualified, some moderately qualified, and some weakly qualified.\n\nFor each candidate, explicitly provide information that can be extracted into the following fields:\n\n- Candidate Name\n- Email\n- Phone Number\n- Applied Position\n- Education\n- Years of Experience\n- Professional Experience\n- Technical Skills\n\nUse different combinations of the following technical skills across the candidates:\n\n- Python\n- Playwright\n- API Testing\n- SQL\n- CI/CD\n- Git\n- Docker\n- Agile/Scrum\n\nImportant requirements:\n\n- Do not give every candidate the same skills.\n- Do not give every candidate the same number of years of experience.\n- Some candidates should have 3+ years of QA/Automation experience.\n- Some candidates should have 2-3 years.\n- Some candidates should have 1-2 years.\n- At least one candidate should have less than 1 year of experience.\n- Some candidates should have Python.\n- Some candidates should have Playwright.\n- Some candidates should have API Testing.\n- Some candidates should have SQL.\n- Some candidates should have CI/CD.\n- Some candidates should have Git.\n- Some candidates should have Docker.\n- Some candidates should have Agile/Scrum.\n- Some candidates should have several of these skills.\n- Some candidates should have only a few of these skills.\n- Do not mention a skill unless the candidate actually has it.\n- Explicitly mention the candidate's years of experience.\n- Include realistic professional experience and responsibilities.\n- Include realistic education.\n- Use different writing styles and different lengths for the applications.\n- Make every application unique.\n- Do not use age, gender, nationality, ethnicity, photographs, or other personal characteristics.\n- Use completely fictional candidate names.\n- Use fictional email addresses and fictional phone numbers.\n- Do not use real people's personal information.\n- Do not include a subject line.\n- Write all applications in English.\n- Make the emails look like genuine job applications written by candidates.\n- Do not mention that the applications are generated, fictional, test data, or AI-generated.\n\nThe purpose is to test whether an automated recruitment system can correctly extract candidate information from different application emails.\n\nReturn ONLY valid JSON.\n\nUse exactly this structure:\n\n{\n  \"applications\": [\n    {\n      \"Candidate Name\": \"\",\n      \"Email\": \"\",\n      \"Phone Number\": \"\",\n      \"Applied Position\": \"Automation QA Engineer\",\n      \"Education\": \"\",\n      \"Years of Experience\": 0,\n      \"Professional Experience\": \"\",\n      \"Technical Skills\": [],\n      \"Application Email\": \"\"\n    }\n  ]\n}\n\nThere must be exactly 10 applications inside the \"applications\" array.\n\nEach \"Application Email\" must be a complete job application email containing the candidate's relevant information.\n\nDo not include Candidate Score or Screening recommendation.\n"
+            }
+          ]
+        },
+        "simplify": false,
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        224,
+        0
+      ],
+      "id": "f252ac19-aeb7-4535-abce-cc4fce0900a5",
+      "name": "Format Application Data",
+      "credentials": {
+        "openAiApi": {
+          "id": "2PHinHCZHFKmA2Q3",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "aitestnn5@gmail.com",
+        "subject": "={{ $json.subject }}",
+        "message": "={{ $json.body }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        816,
+        0
+      ],
+      "id": "364668e2-7929-4bc1-adb3-e12cf39567f0",
+      "name": "Send Test Applications",
+      "webhookId": "466d89d7-184f-48f5-8990-982986c65c5d",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "8FUWImQ4JPXdIUfq",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Send Test Applications",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Test Application": {
+      "main": [
+        [
+          {
+            "node": "Format Application Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Application Data": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "ce24c79f-d524-48d8-afae-9c326ec6b706",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ae775db62ec0e631ef3117e6d67ab08f597fc67e78197f45e001a43bd15bf9e1"
+  },
+  "nodeGroups": [],
+  "id": "NyeLIsJ366P3nCLn",
+  "tags": []
+}

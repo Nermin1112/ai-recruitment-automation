@@ -1,0 +1,692 @@
+{
+  "name": "AI Recruitment Response",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1me0Og9CtPH5WqJ_hsMeWIF2Jm69hZNW8M0TZ4PJcD9Q/edit?pli=1&gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "List 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1me0Og9CtPH5WqJ_hsMeWIF2Jm69hZNW8M0TZ4PJcD9Q/edit#gid=0"
+        },
+        "event": "rowUpdate",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        64
+      ],
+      "id": "c783f48c-394b-4d05-9183-1f0ad1e904eb",
+      "name": "Candidate Status Updated",
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "nUyPhPNmnrQHyPcK",
+          "name": "Google Sheets Trigger account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-5-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-5-MINI"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "=​You are a professional recruitment assistant.\n\nYour task is to write a polite, professional and respectful rejection email to a job applicant.\n\nUse the candidate's name and job position from the Google Sheets data provided below.\n\nThe email should:\n- Address the candidate personally by name.\n- Thank them for their application and interest in the position.\n- Politely apologize that we cannot proceed with their application.\n- Explain in a general and respectful way that their profile and qualifications do not sufficiently match the current requirements of the position.\n- Do not mention specific weaknesses unless explicitly provided.\n- Do not invent any information about the candidate.\n- Wish the candidate success in their future career.\n- Keep the email concise and professional.\n- Write the email in English.\n- Do not include a subject line.\n- Return only the email body.\n- Do not include explanations, comments, or Markdown.\n\nCandidate name:\n{{ $json['Candidate Name'] }}\n\nJob position:\n{{ $json['Applied Position'] }}\n"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        320,
+        0
+      ],
+      "id": "c3d3bbc2-f50a-4633-a246-47f110f54872",
+      "name": "Generate Rejection Email",
+      "credentials": {
+        "openAiApi": {
+          "id": "2PHinHCZHFKmA2Q3",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "nerkohodza11@hotmail.com",
+        "subject": "Update regarding your job application",
+        "message": "={{ $json.output[0].content[0].text }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        688,
+        0
+      ],
+      "id": "8a529853-cb0a-4398-b932-c9f3f0352d02",
+      "name": "Send Rejection Email",
+      "webhookId": "f8586b68-ba2e-446d-8cc0-c0ea68a95be5",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "8FUWImQ4JPXdIUfq",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1me0Og9CtPH5WqJ_hsMeWIF2Jm69hZNW8M0TZ4PJcD9Q",
+          "mode": "list",
+          "cachedResultName": "Kandidati za posao",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1me0Og9CtPH5WqJ_hsMeWIF2Jm69hZNW8M0TZ4PJcD9Q/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "List 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1me0Og9CtPH5WqJ_hsMeWIF2Jm69hZNW8M0TZ4PJcD9Q/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Email Sent": "Yes",
+            "Email": "={{ $('Candidate Status Updated').item.json.Email }}"
+          },
+          "matchingColumns": [
+            "Email"
+          ],
+          "schema": [
+            {
+              "id": "Candidate Name",
+              "displayName": "Candidate Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Phone Number",
+              "displayName": "Phone Number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Applied Position",
+              "displayName": "Applied Position",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Education",
+              "displayName": "Education",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Years of Experience",
+              "displayName": "Years of Experience",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Professional Experience",
+              "displayName": "Professional Experience",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Technical Skills",
+              "displayName": "Technical Skills",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Languages",
+              "displayName": "Languages",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Candidate Score",
+              "displayName": "Candidate Score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Screening recommendation",
+              "displayName": "Screening recommendation",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Candidate Summary",
+              "displayName": "Candidate Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email Sent",
+              "displayName": "Email Sent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        912,
+        0
+      ],
+      "id": "d25f9fcd-5da8-40d9-91b1-c5d7c0fba1ba",
+      "name": "Mark Email as Sent",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "iU3AM2Qpg2NXRBBj",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "46b956e1-bea3-4269-8fdd-dac1c52b2f17",
+              "leftValue": "={{ $json.Status }}",
+              "rightValue": "REJECTED",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "1e503aa4-0da9-47c1-ba08-29984a7a44ec",
+              "leftValue": "={{ $json['Email Sent'] }}",
+              "rightValue": "No",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        176,
+        0
+      ],
+      "id": "6dec7914-07ce-47db-a023-b22b0ae7065e",
+      "name": "Check Rejection Conditions1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "575c2a93-0a0c-44ee-a763-edd8c02a9598",
+              "leftValue": "={{ $json.Status }}",
+              "rightValue": "APPROVED",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "b6ef1cef-d237-4e7c-9c82-442cb05137b6",
+              "leftValue": "={{ $json['Email Sent'] }}",
+              "rightValue": "No",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        176,
+        144
+      ],
+      "id": "48431cb8-b447-49b8-8e5c-e7d1a6c8c45b",
+      "name": "Check Acceptance Conditions"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-5-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-5-MINI"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "=You are a professional recruitment assistant.\nYour task is to write a polite, professional and positive email to a job applicant whose application has been approved for the next stage of the recruitment process.\n\nUse the candidate's name and job position from the Google Sheets data provided below.\n\nThe email should:\n\nAddress the candidate personally by name.\nThank them for their application and interest in the position.\nLet them know that we were impressed with their application and would like to move forward with them to the next stage of the recruitment process.\nClearly state that the next step is an interview.\nKeep the wording positive, professional and welcoming.\nDo not promise a job offer or employment.\nDo not invent any information about the candidate.\nDo not mention a specific interview date or time unless it is explicitly provided.\nKeep the email concise and professional.\nWrite the email in English.\nDo not include a subject line.\nReturn only the email body.\nDo not include explanations, comments, or Markdown.\nCandidate name:\n{{ $json['Candidate Name'] }}\nJob position:\n{{ $json['Applied Position'] }}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        320,
+        144
+      ],
+      "id": "4cb03693-cb40-4227-8a2d-cb1959a4110c",
+      "name": "Generate Acceptance Email",
+      "credentials": {
+        "openAiApi": {
+          "id": "2PHinHCZHFKmA2Q3",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "nerkohodza11@hotmail.com",
+        "subject": "=Next Step in Your Application – {{ $('Candidate Status Updated').item.json['Applied Position'] }}",
+        "message": "={{ $json.output[0].content[0].text }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        688,
+        144
+      ],
+      "id": "664823c2-d7d7-491a-97b6-aa54f3553bb9",
+      "name": "Send Acceptance Email",
+      "webhookId": "48c4dd88-afd0-42aa-b4ab-265b8a5eb5ac",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "8FUWImQ4JPXdIUfq",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1me0Og9CtPH5WqJ_hsMeWIF2Jm69hZNW8M0TZ4PJcD9Q",
+          "mode": "list",
+          "cachedResultName": "Kandidati za posao",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1me0Og9CtPH5WqJ_hsMeWIF2Jm69hZNW8M0TZ4PJcD9Q/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "List 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1me0Og9CtPH5WqJ_hsMeWIF2Jm69hZNW8M0TZ4PJcD9Q/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Email": "={{ $('Candidate Status Updated').item.json.Email }}",
+            "Email Sent": "Yes"
+          },
+          "matchingColumns": [
+            "Email"
+          ],
+          "schema": [
+            {
+              "id": "Candidate Name",
+              "displayName": "Candidate Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Phone Number",
+              "displayName": "Phone Number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Applied Position",
+              "displayName": "Applied Position",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Education",
+              "displayName": "Education",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Years of Experience",
+              "displayName": "Years of Experience",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Professional Experience",
+              "displayName": "Professional Experience",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Technical Skills",
+              "displayName": "Technical Skills",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Languages",
+              "displayName": "Languages",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Candidate Score",
+              "displayName": "Candidate Score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Screening recommendation",
+              "displayName": "Screening recommendation",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Candidate Summary",
+              "displayName": "Candidate Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email Sent",
+              "displayName": "Email Sent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        912,
+        144
+      ],
+      "id": "0201c775-af02-4757-b91c-ff82437cf534",
+      "name": "Mark Email as Sent1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "iU3AM2Qpg2NXRBBj",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Candidate Status Updated": {
+      "main": [
+        [
+          {
+            "node": "Check Rejection Conditions1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Check Acceptance Conditions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Rejection Email": {
+      "main": [
+        [
+          {
+            "node": "Send Rejection Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Rejection Email": {
+      "main": [
+        [
+          {
+            "node": "Mark Email as Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Rejection Conditions1": {
+      "main": [
+        [
+          {
+            "node": "Generate Rejection Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Acceptance Conditions": {
+      "main": [
+        [
+          {
+            "node": "Generate Acceptance Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Acceptance Email": {
+      "main": [
+        [
+          {
+            "node": "Send Acceptance Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Acceptance Email": {
+      "main": [
+        [
+          {
+            "node": "Mark Email as Sent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "33e50b13-bdee-477d-8b1f-463eec5ab8dd",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ae775db62ec0e631ef3117e6d67ab08f597fc67e78197f45e001a43bd15bf9e1"
+  },
+  "nodeGroups": [],
+  "id": "VQYbxBUUEewNqDbk",
+  "tags": []
+}
