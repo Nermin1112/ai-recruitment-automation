@@ -215,11 +215,11 @@ The candidate score is an automation aid and should not be treated as an automat
 
 ### Google Sheets Results
 
-![Google Sheets Results](screenshots/04-google-sheets-results.png)
+![Google Sheets Results](screenshots/04-google-sheets-details1.png)
 
 ### Google Sheets Candidate Details
 
-![Google Sheets Details](screenshots/05-google-sheets-details.png)
+![Google Sheets Details](screenshots/05-google-sheets-details2.png)
 
 ### Test Application Generator
 
